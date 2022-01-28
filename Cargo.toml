@@ -1,0 +1,27 @@
+[package]
+name = "nvim-cmp-native-utils"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+mlua = {version = "0.7.3", features = ["luajit", "vendored", "module", "macros", "send", "async", "serialize"]}
+simplelog = "0.11.2"
+log = "0.4.14"
+serde = { version = "1.0.136", features = ["derive"] }
+
+[target.x86_64-apple-darwin]
+rustflags = [
+  "-C", "link-arg=-undefined",
+  "-C", "link-arg=dynamic_lookup",
+]
+
+[target.aarch64-apple-darwin]
+rustflags = [
+  "-C", "link-arg=-undefined",
+  "-C", "link-arg=dynamic_lookup",
+]

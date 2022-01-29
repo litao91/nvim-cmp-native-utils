@@ -2,7 +2,7 @@ use mlua::prelude::*;
 mod log;
 mod utils;
 use crate::utils::matcher;
-#[mlua::lua_module]
+use std::time::{SystemTime, UNIX_EPOCH};
 
 fn create_matcher_table(lua: &Lua) -> LuaResult<LuaTable> {
     let tbl = lua.create_table()?;
@@ -49,5 +49,13 @@ fn libnvim_cmp_native_utils(lua: &Lua) -> LuaResult<LuaTable> {
     let exports = lua.create_table()?;
     exports.set("log", log::make_log_tbl(lua)?)?;
     exports.set("matcher", create_matcher_table(lua)?)?;
+    exports.set(
+        "timestamp",
+        lua.create_function(|_, ()| {
+            let start = SystemTime::now();
+            let since_the_epoch = start.duration_since(UNIX_EPOCH).unwrap().as_millis();
+            Ok(since_the_epoch)
+        })?,
+    )?;
     Ok(exports)
 }

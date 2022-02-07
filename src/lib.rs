@@ -41,6 +41,50 @@ fn create_matcher_table(lua: &Lua) -> LuaResult<LuaTable> {
         )?,
     )?;
 
+    tbl.set(
+        "bench_rs",
+        lua.create_function(|lua, ()| {
+            for _ in 0..10000 {
+                matcher::do_match(b"", b"a", &Vec::new());
+                matcher::do_match(b"a", b"a", &Vec::new());
+                matcher::do_match(b"ab", b"a", &Vec::new());
+                matcher::do_match(b"ab", b"ab", &Vec::new());
+                matcher::do_match(b"ab", b"a_b", &Vec::new());
+                matcher::do_match(b"ab", b"a_b_c", &Vec::new());
+                matcher::do_match(b"ac", b"a_b_c", &Vec::new());
+
+                matcher::do_match(b"bora", b"border-radius", &Vec::new());
+                matcher::do_match(b"woroff", b"word_offset", &Vec::new());
+                matcher::do_match(b"call", b"call", &Vec::new());
+                matcher::do_match(b"call", b"condition_all", &Vec::new());
+                matcher::do_match(b"Buffer", b"Buffer", &Vec::new());
+                matcher::do_match(b"Buffer", b"buffer", &Vec::new());
+                matcher::do_match(b"fmodify", b"fnamemodify", &Vec::new());
+                matcher::do_match(b"candlesingle", b"candle#accept#single", &Vec::new());
+                matcher::do_match(b"conso", b"console", &Vec::new());
+                matcher::do_match(b"conso", b"ConstantSourceNode", &Vec::new());
+                matcher::do_match(b"var_", b"var_dump", &Vec::new());
+                matcher::do_match(b"my_", b"my_awesome_variable", &Vec::new());
+                matcher::do_match(b"my_", b"completion_matching_strategy_list", &Vec::new());
+                matcher::do_match(b"luacon", b"lua_context", &Vec::new());
+                matcher::do_match(b"luacon", b"LuaContext", &Vec::new());
+                matcher::do_match(b"call", b"calc", &Vec::new());
+
+                matcher::do_match(b"vi", b"void#", &Vec::new());
+                matcher::do_match(b"vo", b"void#", &Vec::new());
+                matcher::do_match(b"usela", b"useLayoutEffect", &Vec::new());
+                matcher::do_match(b"usela", b"useDataLayer", &Vec::new());
+                matcher::do_match(b"true", b"v:true", vec![ b"true".as_slice()].as_slice());
+                matcher::do_match(b"true", b"true", &Vec::new());
+                matcher::do_match(b"g", b"get", vec![b"get".as_slice()].as_slice());
+                matcher::do_match(b"g", b"dein#get", vec![b"dein#get".as_slice()].as_slice());
+                matcher::do_match(b"2", b"[[2021", &Vec::new());
+            }
+
+            Ok(())
+        })?,
+    )?;
+
     Ok(tbl)
 }
 

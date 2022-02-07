@@ -8,7 +8,7 @@ function M.setup()
 	lib.log.info("Setting up nvim-cmp-native-utils")
 	original_match = require("cmp.matcher").match
 	require("cmp.matcher").match = function(input, word, words)
-        local arg_words = words or {}
+		local arg_words = words or {}
 		local r = lib.matcher.match(input, word, arg_words)
 		return r[1], r[2]
 	end
@@ -67,12 +67,17 @@ function M.bench_matcher()
 
 	start = lib.timestamp()
 	run_match(function(input, word, words)
-        local arg_words = words or {}
+		local arg_words = words or {}
 		local r = lib.matcher.match(input, word, arg_words)
 		return r[1], r[2]
 	end)
 	e = lib.timestamp()
-	lib.log.info("Rust took " .. (e - start))
+	lib.log.info("Iter with Rust took " .. (e - start))
+
+	start = lib.timestamp()
+	lib.matcher.bench_rs()
+	e = lib.timestamp()
+	lib.log.info("pure rust took " .. (e - start))
 end
 
 return M

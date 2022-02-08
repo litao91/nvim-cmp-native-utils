@@ -1,13 +1,13 @@
+use context::Context;
 use mlua::prelude::*;
-mod log;
-mod utils;
-mod source;
-mod entry;
-mod models;
 mod context;
+mod entry;
+mod log;
+mod models;
+mod source;
+mod utils;
 use crate::utils::matcher;
 use std::time::{SystemTime, UNIX_EPOCH};
-
 
 fn create_matcher_table(lua: &Lua) -> LuaResult<LuaTable> {
     let tbl = lua.create_table()?;
@@ -79,7 +79,7 @@ fn create_matcher_table(lua: &Lua) -> LuaResult<LuaTable> {
                 matcher::do_match(b"vo", b"void#", &Vec::new());
                 matcher::do_match(b"usela", b"useLayoutEffect", &Vec::new());
                 matcher::do_match(b"usela", b"useDataLayer", &Vec::new());
-                matcher::do_match(b"true", b"v:true", vec![ b"true".as_slice()].as_slice());
+                matcher::do_match(b"true", b"v:true", vec![b"true".as_slice()].as_slice());
                 matcher::do_match(b"true", b"true", &Vec::new());
                 matcher::do_match(b"g", b"get", vec![b"get".as_slice()].as_slice());
                 matcher::do_match(b"g", b"dein#get", vec![b"dein#get".as_slice()].as_slice());
@@ -105,6 +105,14 @@ fn libnvim_cmp_native_utils(lua: &Lua) -> LuaResult<LuaTable> {
             let since_the_epoch = start.duration_since(UNIX_EPOCH).unwrap().as_millis();
             Ok(since_the_epoch)
         })?,
+    )?;
+    exports.set(
+        "get_entries_from_source",
+        lua.create_function(
+            |lua, (source, ctx, limit): (LuaTable, LuaValue, i64)| -> LuaResult<LuaTable> {
+                source::get_entries(lua, &source, &Context::from_lua(ctx, lua)?, limit)
+            },
+        )?,
     )?;
     Ok(exports)
 }

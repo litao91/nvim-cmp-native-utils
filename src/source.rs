@@ -10,7 +10,6 @@ pub fn get_entries<'a>(
     ctx: &Context,
     limit: i64,
 ) -> LuaResult<LuaTable<'a>> {
-    let r = lua.create_table()?;
     let target_entries: LuaTable = source.get("entries")?;
     let target_len = target_entries.raw_len();
     let mut inputs = HashMap::<i32, &str>::new();
@@ -43,5 +42,5 @@ pub fn get_entries<'a>(
             num_entry += 1;
         }
     }
-    Ok(r)
+    Ok(entries)
 }

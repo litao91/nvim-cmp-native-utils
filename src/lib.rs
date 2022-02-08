@@ -1,8 +1,12 @@
 use mlua::prelude::*;
 mod log;
 mod utils;
+mod source;
+mod entry;
+mod models;
 use crate::utils::matcher;
 use std::time::{SystemTime, UNIX_EPOCH};
+
 
 fn create_matcher_table(lua: &Lua) -> LuaResult<LuaTable> {
     let tbl = lua.create_table()?;

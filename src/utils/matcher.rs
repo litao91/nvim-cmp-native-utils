@@ -122,11 +122,7 @@ pub fn do_match(input: &[u8], word: &[u8], words: &[&[u8]]) -> (f64, Vec<MatchRe
 
     // Compute prefix match score
     let mut score = if prefix { PREFIX_FACTOR } else { 0 } as f64;
-    let offset = if prefix {
-        matches[0].index as i32
-    } else {
-        0
-    };
+    let offset = if prefix { matches[0].index as i32 } else { 0 };
     let mut idx = 0;
     for m in &matches {
         let mut s: f64 = 0.0;
@@ -262,8 +258,8 @@ pub fn fuzzy(input: &[u8], word: &[u8], matches: &mut Vec<MatchRegion>) -> bool 
                     word_match_start = word_index as i32 + word_offset as i32;
                 }
                 matched = true;
-                input_index +=1;
-                strict_count +=  (if c1 == c2 { 1 } else { 0 });
+                input_index += 1;
+                strict_count += if c1 == c2 { 1 } else { 0 };
                 match_count += 1;
             } else if matched {
                 input_index = last_input_index;
@@ -334,11 +330,23 @@ mod test {
             let rhs = "border-raidus";
             let r = do_match(lhs.as_bytes(), rhs.as_bytes(), &[]);
             assert_eq!(r.1.len(), 2);
-            assert_eq!(&lhs.as_bytes()[r.1[0].input_match_start .. r.1[0].input_match_end], "bor".as_bytes());
-            assert_eq!(&rhs.as_bytes()[r.1[0].word_match_start .. r.1[0].word_match_end], "bor".as_bytes());
+            assert_eq!(
+                &lhs.as_bytes()[r.1[0].input_match_start..r.1[0].input_match_end],
+                "bor".as_bytes()
+            );
+            assert_eq!(
+                &rhs.as_bytes()[r.1[0].word_match_start..r.1[0].word_match_end],
+                "bor".as_bytes()
+            );
 
-            assert_eq!(&lhs.as_bytes()[r.1[1].input_match_start .. r.1[1].input_match_end], "ra".as_bytes());
-            assert_eq!(&rhs.as_bytes()[r.1[1].word_match_start .. r.1[1].word_match_end], "ra".as_bytes());
+            assert_eq!(
+                &lhs.as_bytes()[r.1[1].input_match_start..r.1[1].input_match_end],
+                "ra".as_bytes()
+            );
+            assert_eq!(
+                &rhs.as_bytes()[r.1[1].word_match_start..r.1[1].word_match_end],
+                "ra".as_bytes()
+            );
             assert!((r.0 - 28.8).abs() < 0.0001);
         }
 
@@ -347,11 +355,23 @@ mod test {
             let rhs = "word_offset";
             let r = do_match(lhs.as_bytes(), rhs.as_bytes(), &[]);
             assert_eq!(r.1.len(), 2);
-            assert_eq!(&lhs.as_bytes()[r.1[0].input_match_start .. r.1[0].input_match_end], "wor".as_bytes());
-            assert_eq!(&rhs.as_bytes()[r.1[0].word_match_start .. r.1[0].word_match_end], "wor".as_bytes());
+            assert_eq!(
+                &lhs.as_bytes()[r.1[0].input_match_start..r.1[0].input_match_end],
+                "wor".as_bytes()
+            );
+            assert_eq!(
+                &rhs.as_bytes()[r.1[0].word_match_start..r.1[0].word_match_end],
+                "wor".as_bytes()
+            );
 
-            assert_eq!(&lhs.as_bytes()[r.1[1].input_match_start .. r.1[1].input_match_end], "off".as_bytes());
-            assert_eq!(&rhs.as_bytes()[r.1[1].word_match_start .. r.1[1].word_match_end], "off".as_bytes());
+            assert_eq!(
+                &lhs.as_bytes()[r.1[1].input_match_start..r.1[1].input_match_end],
+                "off".as_bytes()
+            );
+            assert_eq!(
+                &rhs.as_bytes()[r.1[1].word_match_start..r.1[1].word_match_end],
+                "off".as_bytes()
+            );
             assert!((r.0 - 35.6).abs() < 0.0001);
         }
 
@@ -359,19 +379,37 @@ mod test {
             let lhs = "call";
             let rhs = "call";
             let r = do_match(lhs.as_bytes(), rhs.as_bytes(), &[]);
-            assert_eq!(&lhs.as_bytes()[r.1[0].input_match_start .. r.1[0].input_match_end], "call".as_bytes());
-            assert_eq!(&rhs.as_bytes()[r.1[0].word_match_start .. r.1[0].word_match_end], "call".as_bytes());
+            assert_eq!(
+                &lhs.as_bytes()[r.1[0].input_match_start..r.1[0].input_match_end],
+                "call".as_bytes()
+            );
+            assert_eq!(
+                &rhs.as_bytes()[r.1[0].word_match_start..r.1[0].word_match_end],
+                "call".as_bytes()
+            );
             assert!((r.0 - 29.2).abs() < 0.0001);
         }
         {
             let lhs = "call";
             let rhs = "condition_all";
             let r = do_match(lhs.as_bytes(), rhs.as_bytes(), &[]);
-            assert_eq!(&lhs.as_bytes()[r.1[0].input_match_start .. r.1[0].input_match_end], "c".as_bytes());
-            assert_eq!(&rhs.as_bytes()[r.1[0].word_match_start .. r.1[0].word_match_end], "c".as_bytes());
+            assert_eq!(
+                &lhs.as_bytes()[r.1[0].input_match_start..r.1[0].input_match_end],
+                "c".as_bytes()
+            );
+            assert_eq!(
+                &rhs.as_bytes()[r.1[0].word_match_start..r.1[0].word_match_end],
+                "c".as_bytes()
+            );
 
-            assert_eq!(&lhs.as_bytes()[r.1[1].input_match_start .. r.1[1].input_match_end], "all".as_bytes());
-            assert_eq!(&rhs.as_bytes()[r.1[1].word_match_start .. r.1[1].word_match_end], "all".as_bytes());
+            assert_eq!(
+                &lhs.as_bytes()[r.1[1].input_match_start..r.1[1].input_match_end],
+                "all".as_bytes()
+            );
+            assert_eq!(
+                &rhs.as_bytes()[r.1[1].word_match_start..r.1[1].word_match_end],
+                "all".as_bytes()
+            );
             assert!((r.0 - 28.0).abs() < 0.0001);
         }
         {
@@ -379,8 +417,14 @@ mod test {
             let rhs = "Buffer";
             let r = do_match(lhs.as_bytes(), rhs.as_bytes(), &[]);
             println!("'{}' match '{}': {:?}", lhs, rhs, r);
-            assert_eq!(&lhs.as_bytes()[r.1[0].input_match_start .. r.1[0].input_match_end], "Buffer".as_bytes());
-            assert_eq!(&rhs.as_bytes()[r.1[0].word_match_start .. r.1[0].word_match_end], "Buffer".as_bytes());
+            assert_eq!(
+                &lhs.as_bytes()[r.1[0].input_match_start..r.1[0].input_match_end],
+                "Buffer".as_bytes()
+            );
+            assert_eq!(
+                &rhs.as_bytes()[r.1[0].word_match_start..r.1[0].word_match_end],
+                "Buffer".as_bytes()
+            );
             assert!((r.0 - 36.8).abs() < 0.0001);
         }
         {
@@ -388,8 +432,14 @@ mod test {
             let rhs = "buffer";
             let r = do_match(lhs.as_bytes(), rhs.as_bytes(), &[]);
             println!("'{}' match '{}': {:?}", lhs, rhs, r);
-            assert_eq!(&lhs.as_bytes()[r.1[0].input_match_start .. r.1[0].input_match_end], "Buffer".as_bytes());
-            assert_eq!(&rhs.as_bytes()[r.1[0].word_match_start .. r.1[0].word_match_end], "buffer".as_bytes());
+            assert_eq!(
+                &lhs.as_bytes()[r.1[0].input_match_start..r.1[0].input_match_end],
+                "Buffer".as_bytes()
+            );
+            assert_eq!(
+                &rhs.as_bytes()[r.1[0].word_match_start..r.1[0].word_match_end],
+                "buffer".as_bytes()
+            );
             assert!((r.0 - 34.9).abs() < 0.0001);
         }
 
@@ -398,10 +448,22 @@ mod test {
             let rhs = "fnamemodify";
             let r = do_match(lhs.as_bytes(), rhs.as_bytes(), &[]);
             assert_eq!(r.1.len(), 2);
-            assert_eq!(&lhs.as_bytes()[r.1[0].input_match_start .. r.1[0].input_match_end], "f".as_bytes());
-            assert_eq!(&rhs.as_bytes()[r.1[0].word_match_start .. r.1[0].word_match_end], "f".as_bytes());
-            assert_eq!(&lhs.as_bytes()[r.1[1].input_match_start .. r.1[1].input_match_end], "".as_bytes());
-            assert_eq!(&rhs.as_bytes()[r.1[1].word_match_start .. r.1[1].word_match_end], "memodify".as_bytes());
+            assert_eq!(
+                &lhs.as_bytes()[r.1[0].input_match_start..r.1[0].input_match_end],
+                "f".as_bytes()
+            );
+            assert_eq!(
+                &rhs.as_bytes()[r.1[0].word_match_start..r.1[0].word_match_end],
+                "f".as_bytes()
+            );
+            assert_eq!(
+                &lhs.as_bytes()[r.1[1].input_match_start..r.1[1].input_match_end],
+                "".as_bytes()
+            );
+            assert_eq!(
+                &rhs.as_bytes()[r.1[1].word_match_start..r.1[1].word_match_end],
+                "memodify".as_bytes()
+            );
             println!("'{}' match '{}': {:?}", lhs, rhs, r);
             assert!((r.0 - 11.8).abs() < 0.0001);
         }
@@ -410,10 +472,22 @@ mod test {
             let lhs = "candlesingle";
             let rhs = "candle#accept#single";
             let r = do_match(lhs.as_bytes(), rhs.as_bytes(), &[]);
-            assert_eq!(&lhs.as_bytes()[r.1[0].input_match_start .. r.1[0].input_match_end], "candle".as_bytes());
-            assert_eq!(&rhs.as_bytes()[r.1[0].word_match_start .. r.1[0].word_match_end], "candle".as_bytes());
-            assert_eq!(&lhs.as_bytes()[r.1[1].input_match_start .. r.1[1].input_match_end], "single".as_bytes());
-            assert_eq!(&rhs.as_bytes()[r.1[1].word_match_start .. r.1[1].word_match_end], "single".as_bytes());
+            assert_eq!(
+                &lhs.as_bytes()[r.1[0].input_match_start..r.1[0].input_match_end],
+                "candle".as_bytes()
+            );
+            assert_eq!(
+                &rhs.as_bytes()[r.1[0].word_match_start..r.1[0].word_match_end],
+                "candle".as_bytes()
+            );
+            assert_eq!(
+                &lhs.as_bytes()[r.1[1].input_match_start..r.1[1].input_match_end],
+                "single".as_bytes()
+            );
+            assert_eq!(
+                &rhs.as_bytes()[r.1[1].word_match_start..r.1[1].word_match_end],
+                "single".as_bytes()
+            );
             println!("'{}' match '{}': {:?}", lhs, rhs, r);
             assert!((r.0 - 54.8).abs() < 0.0001);
         }
@@ -503,16 +577,28 @@ mod test {
             let lhs = "true";
             let rhs = "v:true";
             let r = do_match(lhs.as_bytes(), rhs.as_bytes(), &["true".as_bytes()]);
-            assert_eq!(&lhs.as_bytes()[r.1[0].input_match_start .. r.1[0].input_match_end], "true".as_bytes());
-            assert_eq!(&rhs.as_bytes()[r.1[0].word_match_start .. r.1[0].word_match_end], "true".as_bytes());
+            assert_eq!(
+                &lhs.as_bytes()[r.1[0].input_match_start..r.1[0].input_match_end],
+                "true".as_bytes()
+            );
+            assert_eq!(
+                &rhs.as_bytes()[r.1[0].word_match_start..r.1[0].word_match_end],
+                "true".as_bytes()
+            );
             assert!((r.0 - 29.2).abs() < 0.0001);
         }
         {
             let lhs = "g";
             let rhs = "get";
             let r = do_match(lhs.as_bytes(), rhs.as_bytes(), &["get".as_bytes()]);
-            assert_eq!(&lhs.as_bytes()[r.1[0].input_match_start .. r.1[0].input_match_end], "g".as_bytes());
-            assert_eq!(&rhs.as_bytes()[r.1[0].word_match_start .. r.1[0].word_match_end], "g".as_bytes());
+            assert_eq!(
+                &lhs.as_bytes()[r.1[0].input_match_start..r.1[0].input_match_end],
+                "g".as_bytes()
+            );
+            assert_eq!(
+                &rhs.as_bytes()[r.1[0].word_match_start..r.1[0].word_match_end],
+                "g".as_bytes()
+            );
             assert!((r.0 - 17.8).abs() < 0.0001);
         }
 
@@ -521,8 +607,14 @@ mod test {
             let rhs = "dein#get";
             let r = do_match(lhs.as_bytes(), rhs.as_bytes(), &["dein#get".as_bytes()]);
             println!("{:?}", r);
-            assert_eq!(&lhs.as_bytes()[r.1[0].input_match_start .. r.1[0].input_match_end], "g".as_bytes());
-            assert_eq!(&rhs.as_bytes()[r.1[0].word_match_start .. r.1[0].word_match_end], "g".as_bytes());
+            assert_eq!(
+                &lhs.as_bytes()[r.1[0].input_match_start..r.1[0].input_match_end],
+                "g".as_bytes()
+            );
+            assert_eq!(
+                &rhs.as_bytes()[r.1[0].word_match_start..r.1[0].word_match_end],
+                "g".as_bytes()
+            );
             assert!((r.0 - 9.4).abs() < 0.0001);
         }
 
@@ -531,8 +623,14 @@ mod test {
             let rhs = "[[2021";
             let r = do_match(lhs.as_bytes(), rhs.as_bytes(), &[]);
             println!("{:?}", r);
-            assert_eq!(&lhs.as_bytes()[r.1[0].input_match_start .. r.1[0].input_match_end], "2".as_bytes());
-            assert_eq!(&rhs.as_bytes()[r.1[0].word_match_start .. r.1[0].word_match_end], "2".as_bytes());
+            assert_eq!(
+                &lhs.as_bytes()[r.1[0].input_match_start..r.1[0].input_match_end],
+                "2".as_bytes()
+            );
+            assert_eq!(
+                &rhs.as_bytes()[r.1[0].word_match_start..r.1[0].word_match_end],
+                "2".as_bytes()
+            );
             assert!((r.0 - 9.4).abs() < 0.0001);
         }
         // assert!(false);

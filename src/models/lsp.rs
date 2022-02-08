@@ -237,15 +237,15 @@ impl<'lua> FromLua<'lua> for Range {
     }
 }
 #[derive(Debug, Clone, Eq, PartialEq)]
-pub struct TextEdit<'lua> {
+pub struct TextEdit {
     pub range: Option<Range>,
     pub insert: Option<Range>, // for InsertReplace
     pub replace: Option<Range>, // for InsertReplace
-    pub new_text: &'lua str 
+    pub new_text: String,
                                // pub new_text: Vec<u8>,
 }
 
-impl<'lua> FromLua<'lua> for TextEdit<'lua> {
+impl<'lua> FromLua<'lua> for TextEdit {
     fn from_lua(lua_value: LuaValue<'lua>, lua: &'lua Lua) -> LuaResult<Self> {
         match lua_value {
             LuaValue::Table(tbl) => Ok(Self {
@@ -270,7 +270,7 @@ impl<'lua> FromLua<'lua> for TextEdit<'lua> {
                         _ => Some(Range::from_lua(v, lua)?),
                     }
                 },
-                new_text: std::str::from_utf8(tbl.get::<_, LuaString>("newText")?.as_bytes())?,
+                new_text: tbl.get::<_, String>("newText")?,
             }),
             LuaValue::Nil => Err(LuaError::FromLuaConversionError {
                 from: "Nil",

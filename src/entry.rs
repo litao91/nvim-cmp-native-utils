@@ -1,6 +1,9 @@
 use mlua::prelude::*;
 
-use crate::{models::lsp::TextEdit, utils::{misc, byte_char}};
+use crate::{
+    models::lsp::TextEdit,
+    utils::{byte_char, misc, str_utils},
+};
 
 pub fn get_completion_item<'lua>(entry: &LuaTable<'lua>) -> LuaResult<LuaTable<'lua>> {
     let resolved_completion_item: Option<LuaTable> = entry.get("resolved_completion_item")?;
@@ -18,59 +21,77 @@ pub fn get_completion_item<'lua>(entry: &LuaTable<'lua>) -> LuaResult<LuaTable<'
     }
 }
 
-pub fn get_word<'lua>(lua: &Lua, entry: &LuaTable<'lua>, completion_item: &LuaTable<'lua>, text_edit: &Option<TextEdit>) -> LuaResult<&'lua [u8]> {
-        let mut word;
-        if let Some(text_edit) = text_edit {
-            word = text_edit.new_text.trim();
-            let override_range = self.get_override();
-            if 0 < override_range.1
-                || self.completion_item.insert_text_format == InsertTextFormat::Snippet
-            {
-                word = str_utils::get_word(&word, 0);
-            }
-        } else {
-            if let Some(insert_text) = &self.completion_item.insert_text {
-                word = insert_text.trim();
-                if self.completion_item.insert_text_format == InsertTextFormat::Snippet {
-                    word = str_utils::get_word(&word, 0);
+pub static INSERT_TEXT_FORMAT_SNIPPET: i32 = 2;
+
+pub fn get_override(text_edit: &TextEdit, cursor_line: &str) -> LuaResult<(i32, i32)> {
+    todo!()
+}
+
+pub fn get_word<'lua>(
+    completion_item: &LuaTable<'lua>,
+    text_edit: &'lua Option<TextEdit>,
+    cursor_line: &str,
+) -> LuaResult<String> {
+    let mut word;
+    let label_lua = completion_item.get::<_, LuaString>("label")?;
+    let insert_text_format = completion_item.get::<_, i32>("insertTextFormat")?;
+    let insert_text_lua = completion_item.get::<_, LuaValue>("insertText")?;
+    let insert_text = match &insert_text_lua {
+        LuaValue::String(lua_str) => Some(lua_str),
+        _ => None,
+    };
+
+    if let Some(text_edit) = text_edit {
+        word = text_edit.new_text.trim();
+        let override_range = get_override(text_edit, cursor_line)?;
+        if 0 < override_range.1 || insert_text_format == INSERT_TEXT_FORMAT_SNIPPET {
+            word = str_utils::get_word(&word, 0);
+        }
+    } else {
+        match insert_text {
+            Some(lua_str) => {
+                word = std::str::from_utf8(lua_str.as_bytes())?.trim();
+                if insert_text_format == INSERT_TEXT_FORMAT_SNIPPET {
+                    word = str_utils::get_word(word, 0);
                 }
-            } else {
-                word = self.completion_item.label.trim();
+            }
+            _ => {
+                word = std::str::from_utf8(label_lua.as_bytes())?.trim();
             }
         }
-        let r = str_utils::oneline(word).to_owned();
-        r
+    }
+    Ok(str_utils::oneline(word).to_owned())
 }
 
 pub fn get_offset<'lua>(lua: &Lua, entry: &LuaTable<'lua>) -> LuaResult<i32> {
-    let offset = entry.get::<_, i32>("source_offset")?;
+    let mut offset = entry.get::<_, i32>("source_offset")?;
     let completion_item = get_completion_item(entry)?;
     let text_edit_lua: LuaValue = completion_item.get("textEdit")?;
     let text_edit = match text_edit_lua {
         LuaValue::Nil => None,
-        _ => Some(TextEdit::from_lua(text_edit_lua, lua)?)
+        _ => Some(TextEdit::from_lua(text_edit_lua, lua)?),
     };
-    let cursor_line = entry.get::<_, LuaTable>("context")?.get::<_, LuaString>("cursor_line")?.as_bytes();
-    let cursor_line_str = std::str::from_utf8(cursor_line)?;
+    let cursor_line = entry
+        .get::<_, LuaTable>("context")?
+        .get::<_, String>("cursor_line")?;
     if let Some(text_edit) = text_edit {
-            let range = if let Some(range) = &text_edit.insert {
-                Some(range)
-            } else if let Some(range) = &text_edit.range {
-                Some(range)
-            } else {
-                None
-            };
-            if let Some(range) = range {
-                let c = misc::to_vimindex(cursor_line_str, range.start.character);
-                for idx in c..entry.get::<_, usize>("source_offset")?{
-                    if !byte_char::is_white(cursor_line[idx]) {
-                        offset = idx as i32;
-                        break;
-                    }
+        let range = if let Some(range) = &text_edit.insert {
+            Some(range)
+        } else if let Some(range) = &text_edit.range {
+            Some(range)
+        } else {
+            None
+        };
+        if let Some(range) = range {
+            let c = misc::to_vimindex(&cursor_line, range.start.character as usize);
+            for idx in c..entry.get::<_, usize>("source_offset")? {
+                if !byte_char::is_white(cursor_line.as_bytes()[idx]) {
+                    offset = idx as i32;
+                    break;
                 }
             }
+        }
     } else {
     }
     Ok(offset)
-
 }

@@ -1,4 +1,5 @@
 use crate::utils::byte_char;
+use mlua::prelude::*;
 
 const WORD_BOUNDALY_ORDER_FACTOR: i32 = 10;
 const PREFIX_FACTOR: i32 = 8;
@@ -13,6 +14,20 @@ pub struct MatchRegion {
     pub strict_ratio: f64,
     pub fuzzy: bool,
     pub index: usize,
+}
+impl MatchRegion {
+    pub fn to_lua<'lua>(&self, lua: &'lua Lua) -> LuaResult<LuaTable<'lua>> {
+        let m_lua = lua.create_table()?;
+        let m = self;
+        m_lua.set("input_match_start", m.input_match_start + 1)?;
+        m_lua.set("input_match_end", m.input_match_end)?;
+        m_lua.set("word_match_start", m.word_match_start + 1)?;
+        m_lua.set("word_match_end", m.word_match_end)?;
+        m_lua.set("index", m.index + 1)?;
+        m_lua.set("strict_ratio", m.strict_ratio)?;
+        m_lua.set("fuzzy", m.fuzzy)?;
+        Ok(m_lua)
+    }
 }
 /// score
 ///

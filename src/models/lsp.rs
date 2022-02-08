@@ -61,7 +61,7 @@ impl<'lua> FromLua<'lua> for CompletionItem {
                 insert_text: tbl.get("insertText")?,
                 insert_text_format: tbl.get("insertTextFormat")?,
                 text_edit: tbl.get("textEdit")?,
-                word: tbl.get("wrod")?,
+                word: tbl.get("word")?,
                 dup: tbl.get("dup")?,
             }),
             LuaValue::Nil => Err(LuaError::FromLuaConversionError {

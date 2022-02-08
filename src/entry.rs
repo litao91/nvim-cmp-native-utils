@@ -19,6 +19,6 @@ pub fn get_completion_item<'lua>(entry: &LuaTable<'lua>) -> LuaResult<LuaTable<'
 pub fn get_offset<'lua>(lua: &Lua, entry: &LuaTable<'lua>) -> LuaResult<i32> {
     let offset = entry.get::<_, i32>("source_offset")?;
     let completion_item = get_completion_item(entry)?;
-    let text_edit: LuaValue = completion_item.get("textEdit");
+    let text_edit: LuaValue = completion_item.get("textEdit")?;
     todo!()
 }

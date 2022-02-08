@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use mlua::prelude::*;
 
 use crate::{context::Context, entry::Entry};
+use ::log::debug;
 
 pub fn get_entries<'a>(
     lua: &'a Lua,
@@ -23,6 +24,7 @@ pub fn get_entries<'a>(
             .entry(o)
             .or_insert(&ctx.cursor_before_line.as_str()[o as usize..]);
         let matched = e.do_match(input)?;
+        ::log::debug!("matched: -- {:?}", matched);
         let score = matched.0;
         e.entry.set("score", score)?;
         e.entry.set("exact", false)?;

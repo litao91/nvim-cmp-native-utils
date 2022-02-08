@@ -18,6 +18,7 @@ impl<'lua> FromLua<'lua> for InsertTextFormat {
                     message: Some(format!("Unknown value: {}", i)),
                 }),
             },
+            LuaValue::Nil => Ok(InsertTextFormat::PlainText),
             _ => Err(LuaError::FromLuaConversionError {
                 from: lua_value.type_name(),
                 to: "InsertTextFormat",
@@ -36,10 +37,6 @@ pub enum InsertTextMode {
 #[derive(Debug, Clone, PartialEq)]
 pub struct CompletionItem {
     pub label: String,
-    pub detail: Option<String>,
-    pub deprecated: bool,
-    pub preselect: bool,
-    pub sort_text: String,
     pub filter_text: Option<String>,
     pub insert_text: Option<String>,
     pub insert_text_format: InsertTextFormat,
@@ -50,13 +47,10 @@ pub struct CompletionItem {
 
 impl<'lua> FromLua<'lua> for CompletionItem {
     fn from_lua(lua_value: LuaValue<'lua>, lua: &'lua Lua) -> LuaResult<Self> {
+        // ::log::debug!("CompletionItem::from_lua -- {:?}", crate::utils::misc::inspect(lua, &lua_value));
         match lua_value {
             LuaValue::Table(tbl) => Ok(Self {
                 label: tbl.get("label")?,
-                detail: tbl.get("detail")?,
-                deprecated: tbl.get("deprecated")?,
-                preselect: tbl.get("preselect")?,
-                sort_text: tbl.get("sortText")?,
                 filter_text: tbl.get("filterText")?,
                 insert_text: tbl.get("insertText")?,
                 insert_text_format: tbl.get("insertTextFormat")?,
@@ -64,6 +58,7 @@ impl<'lua> FromLua<'lua> for CompletionItem {
                 word: tbl.get("word")?,
                 dup: tbl.get("dup")?,
             }),
+
             LuaValue::Nil => Err(LuaError::FromLuaConversionError {
                 from: "Nil",
                 to: "CompletionItem",

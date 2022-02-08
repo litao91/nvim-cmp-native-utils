@@ -12,10 +12,10 @@ function M.setup()
 	-- 	local r = lib.matcher.match(input, word, arg_words)
 	-- 	return r[1], r[2]
 	-- end
-    local original_get_entries = require("cmp.source").get_entries;
-    require("cmp.source").get_entries = function(self, ctx) 
-        return lib.get_entries_from_source(self, ctx, self:get_config().max_item_count or 200)
-    end
+	local original_get_entries = require("cmp.source").get_entries
+	require("cmp.source").get_entries = function(self, ctx)
+		return lib.get_entries_from_source(self, ctx, self:get_config().max_item_count or 200)
+	end
 end
 
 function M.test()

@@ -8,6 +8,7 @@ mod source;
 mod utils;
 use crate::utils::matcher;
 use std::time::{SystemTime, UNIX_EPOCH};
+use ::log::debug;
 
 fn create_matcher_table(lua: &Lua) -> LuaResult<LuaTable> {
     let tbl = lua.create_table()?;
@@ -110,7 +111,9 @@ fn libnvim_cmp_native_utils(lua: &Lua) -> LuaResult<LuaTable> {
         "get_entries_from_source",
         lua.create_function(
             |lua, (source, ctx, limit): (LuaTable, LuaValue, i64)| -> LuaResult<LuaTable> {
-                source::get_entries(lua, &source, &Context::from_lua(ctx, lua)?, limit)
+                let ctx = &Context::from_lua(ctx, lua)?;
+                // debug!("ctx: {:?}", ctx);
+                source::get_entries(lua, &source, ctx, limit)
             },
         )?,
     )?;

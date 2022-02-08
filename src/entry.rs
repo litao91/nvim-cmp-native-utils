@@ -1,5 +1,6 @@
 use fancy_regex::Regex;
 use mlua::prelude::*;
+use ::log::debug;
 
 use crate::{
     context::Context,

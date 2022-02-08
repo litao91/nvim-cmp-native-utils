@@ -1,52 +1,67 @@
 use mlua::prelude::*;
 
+#[derive(Debug, Clone, Eq, PartialEq)]
+pub enum InsertTextFormat {
+    PlainText,
+    Snippet,
+}
+
+impl<'lua> FromLua<'lua> for InsertTextFormat {
+    fn from_lua(lua_value: LuaValue<'lua>, lua: &'lua Lua) -> LuaResult<Self> {
+        match lua_value {
+            LuaValue::Integer(i) => match i {
+                1 => Ok(InsertTextFormat::PlainText),
+                2 => Ok(InsertTextFormat::Snippet),
+                _ => Err(LuaError::FromLuaConversionError {
+                    from: "Integer",
+                    to: "InsertTextFormat",
+                    message: Some(format!("Unknown value: {}", i)),
+                }),
+            },
+            _ => Err(LuaError::FromLuaConversionError {
+                from: lua_value.type_name(),
+                to: "InsertTextFormat",
+                message: None,
+            }),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Eq, PartialEq)]
+pub enum InsertTextMode {
+    AsIs,
+    AdjustIndentation,
+}
+
 #[derive(Debug, Clone, PartialEq)]
-pub struct CompletionItem<'lua> {
-    pub label: LuaTable<'lua>,
-    pub label_details: LuaTable<'lua>,
-    pub kind: LuaTable<'lua>,
-    pub tags: LuaValue<'lua>,
+pub struct CompletionItem {
+    pub label: String,
     pub detail: Option<String>,
-    pub documentation: Option<LuaTable<'lua>>,
     pub deprecated: bool,
     pub preselect: bool,
     pub sort_text: String,
     pub filter_text: Option<String>,
     pub insert_text: Option<String>,
-    pub insert_text_format: LuaTable<'lua>,
-    pub insert_text_mode: LuaTable<'lua>,
-    pub text_edit: Option<LuaTable<'lua>>,
-    pub additional_text_edits: Vec<LuaTable<'lua>>,
-    pub commit_characters: LuaTable<'lua>,
-    pub command: LuaTable<'lua>,
-    pub data: LuaValue<'lua>,
+    pub insert_text_format: InsertTextFormat,
+    pub text_edit: Option<TextEdit>,
     pub word: String,
     pub dup: Option<bool>,
 }
 
-impl<'lua> FromLua<'lua> for CompletionItem<'lua> {
+impl<'lua> FromLua<'lua> for CompletionItem {
     fn from_lua(lua_value: LuaValue<'lua>, lua: &'lua Lua) -> LuaResult<Self> {
         match lua_value {
             LuaValue::Table(tbl) => Ok(Self {
                 label: tbl.get("label")?,
-                label_details: tbl.get("label_details")?,
-                kind: tbl.get("kind")?,
-                tags: tbl.get("tags")?,
                 detail: tbl.get("detail")?,
-                documentation: tbl.get("documentation")?,
                 deprecated: tbl.get("deprecated")?,
                 preselect: tbl.get("preselect")?,
                 sort_text: tbl.get("sortText")?,
                 filter_text: tbl.get("filterText")?,
                 insert_text: tbl.get("insertText")?,
                 insert_text_format: tbl.get("insertTextFormat")?,
-                insert_text_mode: tbl.get("insertTextMode")?,
                 text_edit: tbl.get("textEdit")?,
-                additional_text_edits: tbl.get("additionalTextEdits")?,
-                commit_characters: tbl.get("commitCharacters")?,
-                command: tbl.get("command")?,
-                data: tbl.get("data")?,
-                word: tbl.get("word")?,
+                word: tbl.get("wrod")?,
                 dup: tbl.get("dup")?,
             }),
             LuaValue::Nil => Err(LuaError::FromLuaConversionError {
@@ -239,10 +254,10 @@ impl<'lua> FromLua<'lua> for Range {
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct TextEdit {
     pub range: Option<Range>,
-    pub insert: Option<Range>, // for InsertReplace
+    pub insert: Option<Range>,  // for InsertReplace
     pub replace: Option<Range>, // for InsertReplace
     pub new_text: String,
-                               // pub new_text: Vec<u8>,
+    // pub new_text: Vec<u8>,
 }
 
 impl<'lua> FromLua<'lua> for TextEdit {

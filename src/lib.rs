@@ -4,6 +4,7 @@ mod utils;
 mod source;
 mod entry;
 mod models;
+mod context;
 use crate::utils::matcher;
 use std::time::{SystemTime, UNIX_EPOCH};
 

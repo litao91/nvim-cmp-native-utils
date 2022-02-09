@@ -1,6 +1,6 @@
+use ::log::debug;
 use fancy_regex::Regex;
 use mlua::prelude::*;
-use ::log::debug;
 
 use crate::{
     context::Context,
@@ -190,6 +190,7 @@ impl<'lua> Entry<'lua> {
             }
         } else {
             let word = self.get_word()?;
+            ::log::debug!("word: {}, source_offset: {}", word, self.source_offset);
             for idx in (self.source_offset as usize - word.len()..self.source_offset as usize).rev()
             {
                 let c = self.context.cursor_line.as_bytes()[idx];

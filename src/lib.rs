@@ -113,7 +113,9 @@ fn libnvim_cmp_native_utils(lua: &Lua) -> LuaResult<LuaTable> {
             |lua, (source, ctx, limit): (LuaTable, LuaValue, i64)| -> LuaResult<LuaTable> {
                 let ctx = &Context::from_lua(ctx, lua)?;
                 // debug!("ctx: {:?}", ctx);
-                source::get_entries(lua, &source, ctx, limit)
+                let r = source::get_entries(lua, &source, ctx, limit)?;
+                ::log::debug!("processed {} entries", r.len()?);
+                Ok(r)
             },
         )?,
     )?;

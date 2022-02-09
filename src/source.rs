@@ -22,9 +22,9 @@ pub fn get_entries<'a>(
         let o = e.get_offset()?;
         let input = inputs
             .entry(o)
-            .or_insert(&ctx.cursor_before_line.as_str()[o as usize..]);
+            .or_insert(&ctx.cursor_before_line.as_str()[(o - 1) as usize..]);
         let matched = e.do_match(input)?;
-        ::log::debug!("matched: -- {:?}", matched);
+        ::log::debug!("matched: -- {:?}, input -- {}", matched, input);
         let score = matched.0;
         e.entry.set("score", score)?;
         e.entry.set("exact", false)?;

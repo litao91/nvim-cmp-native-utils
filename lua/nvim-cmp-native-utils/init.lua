@@ -3,6 +3,43 @@ local M = {}
 
 local original_match = nil
 
+local function get_entries_old(self, ctx)
+  if self.offset == -1 then
+    return {}
+  end
+
+  local target_entries = self.entries
+
+  local inputs = {}
+  local entries = {}
+  for _, e in ipairs(target_entries) do
+    local o = e:get_offset()
+    if not inputs[o] then
+      inputs[o] = string.sub(ctx.cursor_before_line, o)
+    end
+
+    local match = e:match(inputs[o])
+    lib.log.debug("match: " .. vim.inspect(match) .. ", input" .. inputs[o])
+    e.score = match.score
+    e.exact = false
+    if e.score >= 1 then
+      e.matches = match.matches
+      e.exact = e:get_filter_text() == inputs[o] or e:get_word() == inputs[o]
+      table.insert(entries, e)
+    end
+  end
+
+  local max_item_count = self:get_config().max_item_count or 200
+  local limited_entries = {}
+  for _, e in ipairs(entries) do
+    table.insert(limited_entries, e)
+    if max_item_count and #limited_entries >= max_item_count then
+      break
+    end
+  end
+  return limited_entries
+end
+
 function M.setup()
 	lib.log.init({ file = "/tmp/cmp-native.log", level = "debug", terminal = false })
 	lib.log.info("Setting up nvim-cmp-native-utils")
@@ -12,9 +49,12 @@ function M.setup()
 	-- 	local r = lib.matcher.match(input, word, arg_words)
 	-- 	return r[1], r[2]
 	-- end
-	local original_get_entries = require("cmp.source").get_entries
 	require("cmp.source").get_entries = function(self, ctx)
-		return lib.get_entries_from_source(self, ctx, self:get_config().max_item_count or 200)
+		local r2 = get_entries_old(self, ctx)
+		local r = lib.get_entries_from_source(self, ctx, self:get_config().max_item_count or 200)
+		-- lib.log.debug("r=" .. vim.inspect(r))
+		-- lib.log.debug("r2=" .. vim.inspect(r2))
+		return r
 	end
 end
 

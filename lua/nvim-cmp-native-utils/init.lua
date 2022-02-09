@@ -19,7 +19,6 @@ local function get_entries_old(self, ctx)
     end
 
     local match = e:match(inputs[o])
-    -- lib.log.debug("match: " .. vim.inspect(match) .. ", input" .. inputs[o])
     e.score = match.score
     e.exact = false
     if e.score >= 1 then
@@ -53,14 +52,20 @@ function M.setup()
         local start2 = lib.timestamp()
 		local r2 = get_entries_old(self, ctx)
         local end2 = lib.timestamp()
+        lib.log.debug("==============lua===============")
+        for i, value in ipairs(r2) do
+            lib.log.debug("i=" .. i .. ", v = " .. vim.inspect(value.matches))
+        end
 
         local s = lib.timestamp()
 		local r = lib.get_entries_from_source(self, ctx, self:get_config().max_item_count or 200)
         local e = lib.timestamp()
-        local msg1 = "old took " .. (end2 - start2) .. ' got ' .. #r2 .. ' items'
-        lib.log.debug("new took " .. (e - s) .. ' got ' .. #r .. ' items ' .. msg1)
-		-- lib.log.debug("r=" .. vim.inspect(r))
-		-- lib.log.debug("r2=" .. vim.inspect(r2))
+
+        lib.log.debug("==============rust===============")
+        for i, value in ipairs(r) do
+            lib.log.debug("i=" .. i .. ", v = " .. vim.inspect(value.matches))
+        end
+        lib.log.debug("==============end===============")
 		return r
 	end
 end

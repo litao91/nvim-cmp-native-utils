@@ -19,7 +19,7 @@ local function get_entries_old(self, ctx)
     end
 
     local match = e:match(inputs[o])
-    lib.log.debug("match: " .. vim.inspect(match) .. ", input" .. inputs[o])
+    -- lib.log.debug("match: " .. vim.inspect(match) .. ", input" .. inputs[o])
     e.score = match.score
     e.exact = false
     if e.score >= 1 then

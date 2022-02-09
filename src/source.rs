@@ -23,9 +23,8 @@ pub fn get_entries<'a>(
         let input = inputs
             .entry(o)
             .or_insert(&ctx.cursor_before_line.as_str()[(o - 1) as usize..]);
-        ::log::debug!("matching with input: {}", input);
         let matched = e.do_match(input)?;
-        ::log::debug!("matched: -- {:?}, input -- {}", matched, input);
+        // ::log::debug!("matched: -- {:?}, input -- {}", matched, input);
         let score = matched.0;
         e.entry.set("score", score)?;
         e.entry.set("exact", false)?;

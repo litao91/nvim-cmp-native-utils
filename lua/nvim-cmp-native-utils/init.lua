@@ -50,8 +50,15 @@ function M.setup()
 	-- 	return r[1], r[2]
 	-- end
 	require("cmp.source").get_entries = function(self, ctx)
+        local start2 = lib.timestamp()
 		local r2 = get_entries_old(self, ctx)
+        local end2 = lib.timestamp()
+
+        local s = lib.timestamp()
 		local r = lib.get_entries_from_source(self, ctx, self:get_config().max_item_count or 200)
+        local e = lib.timestamp()
+        local msg1 = "old took " .. (end2 - start2) .. ' got ' .. #r2 .. ' items'
+        lib.log.debug("new took " .. (e - s) .. ' got ' .. #r .. ' items ' .. msg1)
 		-- lib.log.debug("r=" .. vim.inspect(r))
 		-- lib.log.debug("r2=" .. vim.inspect(r2))
 		return r

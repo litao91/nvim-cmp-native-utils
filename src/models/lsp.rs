@@ -41,13 +41,10 @@ pub struct CompletionItem {
     pub insert_text: Option<String>,
     pub insert_text_format: InsertTextFormat,
     pub text_edit: Option<TextEdit>,
-    pub word: String,
-    pub dup: Option<bool>,
 }
 
 impl<'lua> FromLua<'lua> for CompletionItem {
     fn from_lua(lua_value: LuaValue<'lua>, lua: &'lua Lua) -> LuaResult<Self> {
-        // ::log::debug!("CompletionItem::from_lua -- {:?}", crate::utils::misc::inspect(lua, &lua_value));
         match lua_value {
             LuaValue::Table(tbl) => Ok(Self {
                 label: tbl.get("label")?,
@@ -55,8 +52,6 @@ impl<'lua> FromLua<'lua> for CompletionItem {
                 insert_text: tbl.get("insertText")?,
                 insert_text_format: tbl.get("insertTextFormat")?,
                 text_edit: tbl.get("textEdit")?,
-                word: tbl.get("word")?,
-                dup: tbl.get("dup")?,
             }),
 
             LuaValue::Nil => Err(LuaError::FromLuaConversionError {

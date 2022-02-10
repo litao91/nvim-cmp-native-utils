@@ -27,13 +27,13 @@ pub fn get_entries<'a>(
                 } else {
                     ""
                 });
-        ::log::debug!(
-            "bbb cursor_before_line: {}, len: {}, input: {}, offset: {}",
-            ctx.cursor_before_line,
-            ctx.cursor_before_line.len(),
-            input, 
-            o
-        );
+        // ::log::debug!(
+        //     "bbb cursor_before_line: {}, len: {}, input: {}, offset: {}",
+        //     ctx.cursor_before_line,
+        //     ctx.cursor_before_line.len(),
+        //     input, 
+        //     o
+        // );
         let matched = e.do_match(input)?;
         let score = matched.0;
         e.entry.set("score", score)?;

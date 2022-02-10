@@ -17,16 +17,16 @@ local function get_entries_old(self, ctx)
 		if not inputs[o] then
 			inputs[o] = string.sub(ctx.cursor_before_line, o)
 		end
-		lib.log.debug(
-			"aaa cursor_before_line:"
-				.. ctx.cursor_before_line
-				.. ", len: "
-				.. #ctx.cursor_before_line
-				.. ", input: "
-				.. inputs[o]
-				.. ", offset: "
-				.. o
-		)
+		-- lib.log.debug(
+		-- 	"aaa cursor_before_line:"
+		-- 		.. ctx.cursor_before_line
+		-- 		.. ", len: "
+		-- 		.. #ctx.cursor_before_line
+		-- 		.. ", input: "
+		-- 		.. inputs[o]
+		-- 		.. ", offset: "
+		-- 		.. o
+		-- )
 
 		local match = e:match(inputs[o])
 		e.score = match.score
@@ -49,9 +49,67 @@ local function get_entries_old(self, ctx)
 	return limited_entries
 end
 
+local function entry_get_offset_dbg(self)
+	local char = require("cmp.utils.char")
+	local misc = require("cmp.utils.misc")
+	local offset = self.source_offset
+	if misc.safe(self:get_completion_item().textEdit) then
+		local range = misc.safe(self:get_completion_item().textEdit.insert)
+			or misc.safe(self:get_completion_item().textEdit.range)
+		if range then
+			local c = misc.to_vimindex(self.context.cursor_line, range.start.character)
+			for idx = c, self.source_offset do
+				if not char.is_white(string.byte(self.context.cursor_line, idx)) then
+					offset = idx
+					break
+				end
+			end
+		end
+	else
+		-- NOTE
+		-- The VSCode does not implement this but it's useful if the server does not care about word patterns.
+		-- We should care about this performance.
+		local word = self:get_word()
+		lib.log.debug(
+			"aaa word: "
+				.. word
+				.. ", cursor_line: "
+				.. self.context.cursor_line
+				.. ", source_offset: "
+				.. self.source_offset
+				.. ",  idx = "
+				.. (self.source_offset - #word)
+				.. ".."
+				.. (self.source_offset - 1)
+		)
+		for idx = self.source_offset - 1, self.source_offset - #word, -1 do
+			if char.is_semantic_index(self.context.cursor_line, idx) then
+				local c = string.byte(self.context.cursor_line, idx)
+				if char.is_white(c) then
+					break
+				end
+				local match = true
+				for i = 1, self.source_offset - idx do
+					local c1 = string.byte(word, i)
+					local c2 = string.byte(self.context.cursor_line, idx + i - 1)
+					if not c1 or not c2 or c1 ~= c2 then
+						match = false
+						break
+					end
+				end
+				if match then
+					offset = math.min(offset, idx)
+				end
+			end
+		end
+	end
+	return offset
+end
+
 function M.setup()
 	lib.log.init({ file = "/tmp/cmp-native.log", level = "debug", terminal = false })
 	lib.log.info("Setting up nvim-cmp-native-utils")
+	require("cmp.entry").get_offset = entry_get_offset_dbg
 	-- original_match = require("cmp.matcher").match
 	-- require("cmp.matcher").match = function(input, word, words)
 	-- 	local arg_words = words or {}

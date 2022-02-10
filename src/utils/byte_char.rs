@@ -1,4 +1,3 @@
-
 pub fn is_white(byte: u8) -> bool {
     match byte {
         b' ' | b'\t' | b'\n' => true,
@@ -83,6 +82,11 @@ pub fn get_next_semantic_index(text: &[u8], current_index: usize) -> usize {
         }
     }
     return text.len();
+}
+
+pub fn get_real_idx(len: usize, idx: i32) -> usize {
+    let ll = len as i32;
+    ((ll + idx) % ll) as usize
 }
 
 pub fn match_char(byte1: u8, byte2: u8) -> bool {

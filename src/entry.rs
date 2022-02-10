@@ -211,21 +211,22 @@ impl<'lua> Entry<'lua> {
                 self.context.cursor_line,
                 self.context.cursor_line.len(),
                 self.source_offset,
-                self.source_offset as usize + 1 - word.len(),
-                self.source_offset as usize - 1
+                self.source_offset as i32 - 1 - word.len() as i32,
+                self.source_offset as i32 - 1
             );
-            for idx in (self.source_offset as usize + 1 - word.len()
-                ..self.source_offset as usize - 1)
+            for idx_v in (self.source_offset as i32 - 1 - word.len() as i32
+                ..self.source_offset as i32 - 1)
                 .rev()
             {
+                let idx = byte_char::get_real_idx(self.context.cursor_line.as_bytes().len(), idx_v);
                 let c = self.context.cursor_line.as_bytes()[idx];
                 if byte_char::is_white(c) {
                     break;
                 }
                 let mut matched = true;
-                for i in 0..self.source_offset as usize - idx {
+                for i in 0..self.source_offset as usize - idx - 1 {
                     let c1 = word.as_bytes()[i];
-                    let c2 = self.context.cursor_line.as_bytes()[idx + i - 1];
+                    let c2 = self.context.cursor_line.as_bytes()[idx + i];
                     if (c1 == 0) || (c2 == 0) || (c1 != c2) {
                         matched = false;
                         break;

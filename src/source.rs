@@ -3,7 +3,6 @@ use std::collections::HashMap;
 use mlua::prelude::*;
 
 use crate::{context::Context, entry::Entry};
-use ::log::debug;
 
 pub fn get_entries<'a>(
     lua: &'a Lua,

@@ -140,32 +140,47 @@ impl<'lua> Entry<'lua> {
         if let Some(word) = &self.word {
             return Ok(word.to_owned());
         }
+        if let Some(w) = &self.completion_item.word {
+            self.word = Some(w.clone());
+            return Ok(w.clone());
+        }
+
         let mut word;
 
         if let Some(text_edit) = &self.completion_item.text_edit {
-            word = text_edit.new_text.trim();
-            let override_range = self.get_override()?;
-            if 0 < override_range.1
+            word = text_edit.new_text.trim().to_owned();
+            if self.completion_item.insert_text_format == InsertTextFormat::Snippet {
+                ::log::warn!("Snippet not implemented");
+                word = str_utils::get_word(&word, 0);
+            }
+            let override_v = self.get_override()?;
+            if 0 < override_v.1
                 || self.completion_item.insert_text_format == InsertTextFormat::Snippet
             {
-                word = str_utils::get_word(&word, 0);
+                word = str_utils::get_word_with_min_len(
+                    &word,
+                    self.context.cursor_after_line.as_bytes()[0],
+                    override_v.0 as usize,
+                )
             }
         } else {
             match &self.completion_item.insert_text {
                 Some(lua_str) => {
-                    word = std::str::from_utf8(lua_str.as_bytes())?.trim();
+                    word = std::str::from_utf8(lua_str.as_bytes())?.trim().to_owned();
                     if self.completion_item.insert_text_format == InsertTextFormat::Snippet {
+                        ::log::debug!("TODO: parse snippet");
                         word = str_utils::get_word(&word, 0);
                     }
                 }
                 _ => {
-                    word = &self.completion_item.label;
+                    word = self.completion_item.label.trim().to_string();
                 }
             }
         }
-        self.word = Some(word.to_owned());
-        Ok(str_utils::oneline(word).to_owned())
+        self.word = Some(word.clone());
+        Ok(str_utils::oneline(&word).to_owned())
     }
+
     pub fn get_offset(&mut self) -> LuaResult<i32> {
         if let Some(offset) = self.offset {
             return Ok(offset);
@@ -192,8 +207,10 @@ impl<'lua> Entry<'lua> {
         } else {
             let word = self.get_word()?;
             ::log::debug!(
-                "word: {},  source_offset: {} -- idx = {} .. {}",
+                "word: {}, cursor_line: {}, len: {},  source_offset: {} -- idx = {} .. {}",
                 word,
+                self.context.cursor_line,
+                self.context.cursor_line.len(),
                 self.source_offset,
                 self.source_offset as usize + 1 - word.len(),
                 self.source_offset as usize - 1

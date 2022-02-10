@@ -41,6 +41,7 @@ pub struct CompletionItem {
     pub insert_text: Option<String>,
     pub insert_text_format: InsertTextFormat,
     pub text_edit: Option<TextEdit>,
+    pub word: Option<String>,
 }
 
 impl<'lua> FromLua<'lua> for CompletionItem {
@@ -52,6 +53,7 @@ impl<'lua> FromLua<'lua> for CompletionItem {
                 insert_text: tbl.get("insertText")?,
                 insert_text_format: tbl.get("insertTextFormat")?,
                 text_edit: tbl.get("textEdit")?,
+                word: tbl.get("word")?,
             }),
 
             LuaValue::Nil => Err(LuaError::FromLuaConversionError {

@@ -4,39 +4,39 @@ local M = {}
 local original_match = nil
 
 local function get_entries_old(self, ctx)
-  if self.offset == -1 then
-    return {}
-  end
+	if self.offset == -1 then
+		return {}
+	end
 
-  local target_entries = self.entries
+	local target_entries = self.entries
 
-  local inputs = {}
-  local entries = {}
-  for _, e in ipairs(target_entries) do
-    local o = e:get_offset()
-    if not inputs[o] then
-      inputs[o] = string.sub(ctx.cursor_before_line, o)
-    end
+	local inputs = {}
+	local entries = {}
+	for _, e in ipairs(target_entries) do
+		local o = e:get_offset()
+		if not inputs[o] then
+			inputs[o] = string.sub(ctx.cursor_before_line, o)
+		end
 
-    local match = e:match(inputs[o])
-    e.score = match.score
-    e.exact = false
-    if e.score >= 1 then
-      e.matches = match.matches
-      e.exact = e:get_filter_text() == inputs[o] or e:get_word() == inputs[o]
-      table.insert(entries, e)
-    end
-  end
+		local match = e:match(inputs[o])
+		e.score = match.score
+		e.exact = false
+		if e.score >= 1 then
+			e.matches = match.matches
+			e.exact = e:get_filter_text() == inputs[o] or e:get_word() == inputs[o]
+			table.insert(entries, e)
+		end
+	end
 
-  local max_item_count = self:get_config().max_item_count or 200
-  local limited_entries = {}
-  for _, e in ipairs(entries) do
-    table.insert(limited_entries, e)
-    if max_item_count and #limited_entries >= max_item_count then
-      break
-    end
-  end
-  return limited_entries
+	local max_item_count = self:get_config().max_item_count or 200
+	local limited_entries = {}
+	for _, e in ipairs(entries) do
+		table.insert(limited_entries, e)
+		if max_item_count and #limited_entries >= max_item_count then
+			break
+		end
+	end
+	return limited_entries
 end
 
 function M.setup()
@@ -49,23 +49,34 @@ function M.setup()
 	-- 	return r[1], r[2]
 	-- end
 	require("cmp.source").get_entries = function(self, ctx)
-        local start2 = lib.timestamp()
+		local start2 = lib.timestamp()
 		local r2 = get_entries_old(self, ctx)
-        local end2 = lib.timestamp()
-        lib.log.debug("==============lua===============")
-        for i, value in ipairs(r2) do
-            lib.log.debug("i=" .. i .. ", v = " .. vim.inspect(value.matches))
-        end
+		local end2 = lib.timestamp()
+		-- if #r2 > 0 then
+		-- 	lib.log.debug("==============lua===============")
+		-- 	for i, value in ipairs(r2) do
+		-- 		lib.log.debug("i=" .. i .. ", v = " .. vim.inspect(value.matches) .. " score = " .. value.score)
+		-- 	end
+		-- end
 
-        local s = lib.timestamp()
+		local s = lib.timestamp()
 		local r = lib.get_entries_from_source(self, ctx, self:get_config().max_item_count or 200)
-        local e = lib.timestamp()
+		local e = lib.timestamp()
 
-        lib.log.debug("==============rust===============")
-        for i, value in ipairs(r) do
-            lib.log.debug("i=" .. i .. ", v = " .. vim.inspect(value.matches))
+		-- if #r > 0 then
+		-- 	lib.log.debug("==============rust===============")
+		-- 	for i, value in ipairs(r) do
+		-- 		lib.log.debug("i=" .. i .. ", v = " .. vim.inspect(value.matches) .. " score = " .. value.score)
+		-- 	end
+		-- end
+		--         if #r > 0 or #r2 > 0 then
+		--             lib.log.debug("==============end===============")
+		--         end
+        local t1 = end2 - start2
+        local t2 = e - s
+        if t1 ~= t2 then
+            lib.log.debug(t1 .. " vs " .. t2)
         end
-        lib.log.debug("==============end===============")
 		return r
 	end
 end

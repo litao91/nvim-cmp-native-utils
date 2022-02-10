@@ -191,8 +191,16 @@ impl<'lua> Entry<'lua> {
             }
         } else {
             let word = self.get_word()?;
-            // ::log::debug!("word: {}, source_offset: {}", word, self.source_offset);
-            for idx in (self.source_offset as usize+ 1 - word.len()..self.source_offset as usize).rev()
+            ::log::debug!(
+                "word: {},  source_offset: {} -- idx = {} .. {}",
+                word,
+                self.source_offset,
+                self.source_offset as usize + 1 - word.len(),
+                self.source_offset as usize - 1
+            );
+            for idx in (self.source_offset as usize + 1 - word.len()
+                ..self.source_offset as usize - 1)
+                .rev()
             {
                 let c = self.context.cursor_line.as_bytes()[idx];
                 if byte_char::is_white(c) {

@@ -1,4 +1,3 @@
-use ::log::debug;
 use fancy_regex::Regex;
 use mlua::prelude::*;
 

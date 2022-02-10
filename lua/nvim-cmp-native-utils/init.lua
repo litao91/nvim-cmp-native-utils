@@ -17,6 +17,16 @@ local function get_entries_old(self, ctx)
 		if not inputs[o] then
 			inputs[o] = string.sub(ctx.cursor_before_line, o)
 		end
+		lib.log.debug(
+			"aaa cursor_before_line:"
+				.. ctx.cursor_before_line
+				.. ", len: "
+				.. #ctx.cursor_before_line
+				.. ", input: "
+				.. inputs[o]
+				.. ", offset: "
+				.. o
+		)
 
 		local match = e:match(inputs[o])
 		e.score = match.score
@@ -72,11 +82,11 @@ function M.setup()
 		--         if #r > 0 or #r2 > 0 then
 		--             lib.log.debug("==============end===============")
 		--         end
-        local t1 = end2 - start2
-        local t2 = e - s
-        if t1 ~= t2 then
-            lib.log.debug(t1 .. " vs " .. t2)
-        end
+		local t1 = end2 - start2
+		local t2 = e - s
+		if t1 ~= t2 then
+			lib.log.debug(t1 .. " vs " .. t2)
+		end
 		return r
 	end
 end

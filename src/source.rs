@@ -19,9 +19,21 @@ pub fn get_entries<'a>(
         let e_lua = target_entries.get::<_, LuaValue>(i)?;
         let mut e = Entry::from_lua(e_lua, lua)?;
         let o = e.get_offset()?;
-        let input = inputs
-            .entry(o)
-            .or_insert(&ctx.cursor_before_line.as_str()[(o - 1) as usize..]);
+        let input =
+            inputs
+                .entry(o)
+                .or_insert(if o >= 0 && ctx.cursor_before_line.len() >= o as usize {
+                    &ctx.cursor_before_line.as_str()[(o - 1) as usize..]
+                } else {
+                    ""
+                });
+        ::log::debug!(
+            "bbb cursor_before_line: {}, len: {}, input: {}, offset: {}",
+            ctx.cursor_before_line,
+            ctx.cursor_before_line.len(),
+            input, 
+            o
+        );
         let matched = e.do_match(input)?;
         let score = matched.0;
         e.entry.set("score", score)?;

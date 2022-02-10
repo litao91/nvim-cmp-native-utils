@@ -105,7 +105,7 @@ pub fn remove_suffix<'a>(text: &'a str, suffix: &str) -> &'a str {
 mod test {
     use super::*;
     #[test]
-    fn basic() {
+    fn test_get_word() {
         assert_eq!(get_word("print", 0), "print");
 
         assert_eq!(get_word("$variable", 0), "$variable");
@@ -120,6 +120,16 @@ mod test {
         assert_eq!(
             get_word_with_min_len("import { GetStaticProps$1 } from \"next\";", 0, 9),
             "import { GetStaticProps"
+        );
+    }
+    #[test]
+    fn test_remote_suffix() {
+        assert_eq!(remove_suffix("log()", "$0"), "log()");
+        assert_eq!(remove_suffix("log()$0", "$0"), "log()");
+        assert_eq!(remove_suffix("log()${0}", "${0}"), "log()");
+        assert_eq!(
+            remove_suffix("log()${0:placeholder}", "${0}"),
+            "log()${0:placeholder}"
         );
     }
 }

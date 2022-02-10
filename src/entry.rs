@@ -205,15 +205,15 @@ impl<'lua> Entry<'lua> {
             }
         } else {
             let word = self.get_word()?;
-            ::log::debug!(
-                "word: {}, cursor_line: {}, len: {},  source_offset: {} -- idx = {} .. {}",
-                word,
-                self.context.cursor_line,
-                self.context.cursor_line.len(),
-                self.source_offset,
-                self.source_offset as i32 - 1 - word.len() as i32,
-                self.source_offset as i32 - 1
-            );
+            // ::log::debug!(
+            //     "word: {}, cursor_line: {}, len: {},  source_offset: {} -- idx = {} .. {}",
+            //     word,
+            //     self.context.cursor_line,
+            //     self.context.cursor_line.len(),
+            //     self.source_offset,
+            //     self.source_offset as i32 - 1 - word.len() as i32,
+            //     self.source_offset as i32 - 1
+            // );
             for idx_v in (self.source_offset as i32 - 1 - word.len() as i32
                 ..self.source_offset as i32 - 1)
                 .rev()
@@ -233,11 +233,8 @@ impl<'lua> Entry<'lua> {
                     }
                 }
                 if matched {
-                    offset = if offset < idx as i32 {
-                        offset
-                    } else {
-                        idx as i32
-                    }
+                    offset = std::cmp::min(offset, idx as i32);
+                    ::log::debug!("matched word {} at offset {}", word, offset);
                 }
             }
         }

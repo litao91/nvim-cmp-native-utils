@@ -70,18 +70,18 @@ local function entry_get_offset_dbg(self)
 		-- The VSCode does not implement this but it's useful if the server does not care about word patterns.
 		-- We should care about this performance.
 		local word = self:get_word()
-		lib.log.debug(
-			"aaa word: "
-				.. word
-				.. ", cursor_line: "
-				.. self.context.cursor_line
-				.. ", source_offset: "
-				.. self.source_offset
-				.. ",  idx = "
-				.. (self.source_offset - #word)
-				.. ".."
-				.. (self.source_offset - 1)
-		)
+		-- lib.log.debug(
+		-- 	"aaa word: "
+		-- 		.. word
+		-- 		.. ", cursor_line: "
+		-- 		.. self.context.cursor_line
+		-- 		.. ", source_offset: "
+		-- 		.. self.source_offset
+		-- 		.. ",  idx = "
+		-- 		.. (self.source_offset - #word)
+		-- 		.. ".."
+		-- 		.. (self.source_offset - 1)
+		-- )
 		for idx = self.source_offset - 1, self.source_offset - #word, -1 do
 			if char.is_semantic_index(self.context.cursor_line, idx) then
 				local c = string.byte(self.context.cursor_line, idx)
@@ -99,6 +99,7 @@ local function entry_get_offset_dbg(self)
 				end
 				if match then
 					offset = math.min(offset, idx)
+                    lib.log.debug("aaa matched word " .. word .. " at offset " .. offset)
 				end
 			end
 		end
